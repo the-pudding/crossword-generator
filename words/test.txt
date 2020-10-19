@@ -1,7 +1,0 @@
-bd
-cd
-al
-ab
-ac
-gd
-af

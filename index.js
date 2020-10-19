@@ -2,20 +2,34 @@ const fs = require("fs");
 const d3Array = require("d3-array");
 const d3Format = require("d3-format");
 
-const TEMPLATE = "5x5";
-const WORD_LIST = "nyt1940s";
+// nyt1940s - a
+// nyt1950s - c
+// nyt1960s - g
+// nyt1970s - d
+// nyt1980s - f
+// nyt1990s - h
+// nyt2000s - a
+// nyt2010s - g
+// nyt2020 - d
+// lat2020 - f
+// wsj2020 - i
+// up2020 - a
+// usa2020 - g
+
+const TEMPLATE = "5x5-g";
+const WORD_LIST = "usa2020";
 const EMPTY = ".";
 const BLOCK = "#";
 const MIN_LEN = 3;
-const MAX_ITERATIONS = 10000000000;
-const INTERVAL = 100000;
+const MAX_ITERATIONS = 100000000;
+const INTERVAL = 1000;
 
 let iterations = 0;
 let index = 0;
 let words, boards, clues, freq;
 
+const sorting = Math.random() < 0.5 ? 'shuffle' : 'sort';
 const answers = [];
-
 
 const unique = (arr) => [...new Set(arr)];
 
@@ -206,10 +220,10 @@ function init() {
 
   // sort by letter freq
 	open.forEach(arr => {
-    arr.sort((a, b) => {
+		if (sorting === 'shuffle') d3Array.shuffle(arr);
+    else arr.sort((a, b) => {
     	const aScore = d3Array.sum(a.split("").map(d => freq[d]));
     	const bScore = d3Array.sum(b.split("").map((d) => freq[d]));
-			// TODO try opposite
     	return d3Array.descending(aScore, bScore);
     });
   });
@@ -233,8 +247,8 @@ function init() {
   console.time("solve loop");
   const result = solve();
   if (typeof result === "object") {
-    console.log("filled board...");
-    console.log(renderBoard(result));
+    log();
+		console.log(`\nboard filled: ${d3Format.format(',')(iterations)} attempts using ${sorting} mode.`);
 		save(result);
   } else console.log(result);
   console.timeEnd("solve loop");
