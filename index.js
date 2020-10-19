@@ -2,17 +2,19 @@ const fs = require("fs");
 const d3Array = require("d3-array");
 const d3Format = require("d3-format");
 
-const TEMPLATE = "7x7";
-const WORD_LIST = "2010";
+const TEMPLATE = "5x5";
+const WORD_LIST = "nyt1940s";
 const EMPTY = ".";
 const BLOCK = "#";
 const MIN_LEN = 3;
-const MAX_ITERATIONS = 1000000000;
-const INTERVAL = 10000;
+const MAX_ITERATIONS = 10000000000;
+const INTERVAL = 100000;
 
 let iterations = 0;
 let index = 0;
 let words, boards, clues, freq;
+
+const answers = [];
 
 
 const unique = (arr) => [...new Set(arr)];
@@ -45,7 +47,7 @@ function getLetterFrequency(arr) {
 function loadWords(file) {
 	const txt = fs.readFileSync(file, "utf8");
   const s = txt.split("\n").map(d => d.toUpperCase()).filter(d => d);
-	return s;
+	return unique(s);
 }
 
 function getWords(arr) {
@@ -115,13 +117,32 @@ function getClues(rows) {
 
 function renderBoard(board) {
 	const str = board.map(row => row.join(" ")).join("\n");
-	console.log(`\n${str}\n`);
+	return `\n${str}\n`;
 }
 
+function save(result) {
+	const output = clues.map((d, i) => ({
+		row: d.start.y,
+		col: d.start.x,
+		answer: answers[i]
+	}));
+	fs.writeFileSync(`./output/board/${WORD_LIST}-${Date.now()}.txt`, renderBoard(result));
+	fs.writeFileSync(`./output/answer/${WORD_LIST}-${Date.now()}.json`, JSON.stringify(output));
+}
+
+function log() {
+	console.clear();
+  const i = d3Format.format(",")(iterations);
+  const b = renderBoard(boards[boards.length - 1]);
+	const o = `${i}\n${b}`;
+  process.stdout.cursorTo(0);
+  process.stdout.write(o);
+	
+}
 function solve() {
 	while (iterations < MAX_ITERATIONS) {
     iterations += 1;
-    if (iterations % INTERVAL === 0) console.log(d3Format.format(',')(iterations));
+    if (iterations % INTERVAL === 0) log();
     if (index === -1) return "failed to generate a full board";
     if (index === clues.length) return boards.pop();
 
@@ -148,13 +169,16 @@ function solve() {
       const newBoard = copyBoard(boards[index]);
       boards.push(newBoard);
       // TODO optimize choice by letter frequency
-      const choice = matches[0];
+      const choice = matches[Math.floor(Math.random() * matches.length)];
       const openIndex = words.open[len].indexOf(choice);
       words.open[len][openIndex] = '';
 
       const chars = choice.split("");
       letters.forEach((d, i) => (newBoard[d.y][d.x] = chars[i]));
       words.closed[index][choice] = openIndex + 1;
+
+			answers[index] = choice;
+
       index += 1;
     } else {
       boards.pop();
@@ -185,6 +209,7 @@ function init() {
     arr.sort((a, b) => {
     	const aScore = d3Array.sum(a.split("").map(d => freq[d]));
     	const bScore = d3Array.sum(b.split("").map((d) => freq[d]));
+			// TODO try opposite
     	return d3Array.descending(aScore, bScore);
     });
   });
@@ -202,13 +227,15 @@ function init() {
   console.log("clues:", clues.length);
 
   console.log("empty board...");
-  renderBoard(board);
+  
+	log();
+
   console.time("solve loop");
   const result = solve();
-	console.log("iterations:", d3Format.format(",")(iterations));
   if (typeof result === "object") {
     console.log("filled board...");
-    renderBoard(result);
+    console.log(renderBoard(result));
+		save(result);
   } else console.log(result);
   console.timeEnd("solve loop");
 }
