@@ -1,23 +1,32 @@
 const fs = require("fs");
 const d3Array = require("d3-array");
 const d3Format = require("d3-format");
+// a = 3
+// b = 0
+// c = 1
+// d = 3
+// e = 0
+// f = 0
+// g = 4
+// h = 2
+// i = 0
 
 // nyt1940s - a
 // nyt1950s - c
 // nyt1960s - g
 // nyt1970s - d
-// nyt1980s - f
+// nyt1980s - h
 // nyt1990s - h
 // nyt2000s - a
 // nyt2010s - g
 // nyt2020 - d
-// lat2020 - f
-// wsj2020 - i
+// lat2020 - h
+// wsj2020 - g
 // up2020 - a
 // usa2020 - g
 
-const TEMPLATE = "5x5-g";
-const WORD_LIST = "usa2020";
+const TEMPLATE = "3x3";
+const WORD_LIST = "both-oldwhitemen";
 const EMPTY = ".";
 const BLOCK = "#";
 const MIN_LEN = 3;
@@ -29,6 +38,7 @@ let index = 0;
 let words, boards, clues, freq;
 
 const sorting = Math.random() < 0.5 ? 'shuffle' : 'sort';
+// const sorting = "shuffle";
 const answers = [];
 
 const unique = (arr) => [...new Set(arr)];
@@ -136,12 +146,14 @@ function renderBoard(board) {
 
 function save(result) {
 	const output = clues.map((d, i) => ({
-		row: d.start.y,
-		col: d.start.x,
+		x: d.start.x,
+		y: d.start.y,
 		answer: answers[i]
 	}));
-	fs.writeFileSync(`./output/board/${WORD_LIST}-${Date.now()}.txt`, renderBoard(result));
-	fs.writeFileSync(`./output/answer/${WORD_LIST}-${Date.now()}.json`, JSON.stringify(output));
+
+	const stamp = Date.now();
+	fs.writeFileSync(`./output/board/${WORD_LIST}-${stamp}.txt`, renderBoard(result));
+	fs.writeFileSync(`./output/answer/${WORD_LIST}-${stamp}.json`, JSON.stringify(output));
 }
 
 function log() {
