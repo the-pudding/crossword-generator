@@ -1,32 +1,12 @@
 const fs = require("fs");
 const d3Array = require("d3-array");
 const d3Format = require("d3-format");
-// a = 3
-// b = 0
-// c = 1
-// d = 3
-// e = 0
-// f = 0
-// g = 4
-// h = 2
-// i = 0
 
-// nyt1940s - a
-// nyt1950s - c
-// nyt1960s - g
-// nyt1970s - d
-// nyt1980s - h
-// nyt1990s - h
-// nyt2000s - a
-// nyt2010s - g
-// nyt2020 - d
-// lat2020 - h
-// wsj2020 - g
-// up2020 - a
-// usa2020 - g
-
+// options
 const TEMPLATE = "5x5-c";
-const WORD_LIST = "antelope";
+const WORD_LIST = "nyt2020";
+const SORT = "shuffle"; // "shuffle" or "sort"
+
 const EMPTY = ".";
 const BLOCK = "#";
 const MIN_LEN = 3;
@@ -37,8 +17,6 @@ let iterations = 0;
 let index = 0;
 let words, boards, clues, freq;
 
-const sorting = Math.random() < 0.5 ? 'shuffle' : 'sort';
-// const sorting = "shuffle";
 const answers = [];
 
 const unique = (arr) => [...new Set(arr)];
@@ -185,7 +163,6 @@ function solve() {
 
     const re = new RegExp(exp);
 		
-		// TODO speed up
     const matches = words.open[len].filter((word) => 
 			word.match(re) &&
 			!words.closed[index][word]
@@ -232,7 +209,7 @@ function init() {
 
   // sort by letter freq
 	open.forEach(arr => {
-		if (sorting === 'shuffle') d3Array.shuffle(arr);
+		if (SORT === 'shuffle') d3Array.shuffle(arr);
     else arr.sort((a, b) => {
     	const aScore = d3Array.sum(a.split("").map(d => freq[d]));
     	const bScore = d3Array.sum(b.split("").map((d) => freq[d]));
@@ -260,7 +237,7 @@ function init() {
   const result = solve();
   if (typeof result === "object") {
     log();
-		console.log(`\nboard filled: ${d3Format.format(',')(iterations)} attempts using ${sorting} mode.`);
+		console.log(`\nboard filled: ${d3Format.format(',')(iterations)} attempts using ${SORT} mode.`);
 		save(result);
   } else console.log(result);
 	console.timeEnd("solve loop");

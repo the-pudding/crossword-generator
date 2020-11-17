@@ -1,8 +1,8 @@
-# Crossword Generator
+# Mini Crossword Generator
 
-## TODO
+## Usage
 
-while loop comparison
-optimize tasks
-test smaller grid
-heuristics
+- Add txt file of words to pull from in the `words` directory.
+- Add txt file of puzzle template in `templates` directory.
+- Modify `options` variables in `index.js`
+- `npm start`
