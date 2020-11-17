@@ -25,8 +25,8 @@ const d3Format = require("d3-format");
 // up2020 - a
 // usa2020 - g
 
-const TEMPLATE = "3x3";
-const WORD_LIST = "both-oldwhitemen";
+const TEMPLATE = "5x5-c";
+const WORD_LIST = "antelope";
 const EMPTY = ".";
 const BLOCK = "#";
 const MIN_LEN = 3;
@@ -263,7 +263,7 @@ function init() {
 		console.log(`\nboard filled: ${d3Format.format(',')(iterations)} attempts using ${sorting} mode.`);
 		save(result);
   } else console.log(result);
-  console.timeEnd("solve loop");
+	console.timeEnd("solve loop");
 }
 
 init();
