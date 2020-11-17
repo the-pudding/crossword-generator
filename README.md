@@ -1,4 +1,5 @@
-# Mini Crossword Generator
+# Mini Crossword Puzzle Generator
+
 <img src="https://github.com/the-pudding/crossword-generator/raw/master/demo.gif" width="480" alt="output"/>
 ## Usage
 
